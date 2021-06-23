@@ -1,39 +1,45 @@
-# Solidity Game - [Game Title] Attack
+# Solidity Game - Reentrancy Attack
 
-_Inspired by OpenZeppelin's [Ethernaut](https://ethernaut.openzeppelin.com), [Game Title] Level_
+_Inspired by OpenZeppelin's [Ethernaut](https://ethernaut.openzeppelin.com), Re-entrancy Level_
 
 ⚠️Do not try on mainnet!
 
 ## Task
 
-Hacker the basic token contract below.
+Do you know how did the hacker hack DAO?
 
-1. You are given 20 tokens to start with and you will beat the game if you somehow manage to get your hands on any additional tokens. Preferably a very large amount of tokens.
+The goal of this game is for you to steal all the funds from the contract.
 
 _Hint:_
 
-1. What is an odometer?
+1. Untrusted contracts can execute code where you least expect it.
+2. Fallback methods
+3. Throw/revert bubbling
+4. Sometimes the best way to attack a contract is with another contract.
 
 ## What will you learn?
 
-1. Solidity Security Consideration
-2. **Underflow** and **Overflow** in use of unsigned integers
+1. Re-entrancy
+   Any interaction from a contract (A) with another contract (B) and any transfer of Ether hands over control to that contract (B). This makes it possible for B to call back into A before this interaction is completed.
+
+2. CEI Pattern - Checks-Effects-Interactions Pattern
+   Most functions will first perform some checks (who called the function, are the arguments in range, did they send enough Ether, does the person have tokens, etc.). These checks should be done first.
+
+   As the second step, if all checks passed, effects to the state variables of the current contract should be made. Interaction with other contracts should be the very last step in any function.
+
+   The target contract delayed some effects and waited for external function calls to return in a non-error state. This is often a serious mistake because of the re-entrancy problem explained above.
+
+   Note that, also, calls to known contracts might in turn cause calls to unknown contracts, so it is probably better to just always apply this pattern.
 
 ## What is the most difficult challenge?
 
-**You won't get success to attack if the target contract has been complied in Solidity 0.8.0 or uppper** 🤔
+### What was the DAO?
 
-> [**Solidity v0.8.0 Breaking Changes**](https://docs.soliditylang.org/en/v0.8.5/080-breaking-changes.html?highlight=underflow#silent-changes-of-the-semantics)
->
-> Arithmetic operations revert on **underflow** and **overflow**. You can use `unchecked { ... }` to use the previous wrapping behaviour.
->
-> Checks for overflow are very common, so we made them the default to increase readability of code, even if it comes at a slight increase of gas costs.
+The DAO was a decentralized autonomous organization (DAO) that was launched in 2016 on the Ethereum blockchain. After raising $150 million USD worth of ether (ETH) through a token sale, The DAO was hacked due to vulnerabilities in its code base. The Ethereum blockchain was eventually hard forked to restore the stolen funds, but not all parties agreed with this decision, which resulted in the network splitting into two distinct blockchains: Ethereum and Ethereum Classic.
 
-I had tried to do everything in Solidity 0.8.5 at first time, but it didn't work, as it reverted transactions everytime it met underflow.
+See more [here](https://www.gemini.com/cryptopedia/the-dao-hack-makerdao)
 
-Finally, I found that Solidity included those checks by defaults while using sliencely more gas.
-
-So, don't you need to use [`SafeMath`](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/math/SafeMath.sol)?
+### Solidity v0.8.0 Breaking Changes 🤔
 
 ## Source Code
 
@@ -41,26 +47,30 @@ So, don't you need to use [`SafeMath`](https://github.com/OpenZeppelin/openzeppe
 
 ```solidity
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.0;
+pragma solidity >=0.6.0;
 
-contract Token {
-  mapping(address => uint256) balances;
-  uint256 public totalSupply;
+contract Reentrance {
+  mapping(address => uint256) public balances;
 
-  constructor(uint256 _initialSupply) public {
-    balances[msg.sender] = totalSupply = _initialSupply;
+  function donate(address _to) public payable {
+    balances[_to] += msg.value;
   }
 
-  function transfer(address _to, uint256 _value) public returns (bool) {
-    require(balances[msg.sender] - _value >= 0);
-    balances[msg.sender] -= _value;
-    balances[_to] += _value;
-    return true;
+  function balanceOf(address _who) public view returns (uint256 balance) {
+    return balances[_who];
   }
 
-  function balanceOf(address _owner) public view returns (uint256 balance) {
-    return balances[_owner];
+  function withdraw(uint256 _amount) public {
+    if (balances[msg.sender] >= _amount) {
+      (bool result, bytes memory data) = msg.sender.call{ value: _amount }("");
+      if (result) {
+        _amount;
+      }
+      balances[msg.sender] -= _amount;
+    }
   }
+
+  fallback() external payable {}
 }
 
 ```
@@ -104,9 +114,10 @@ Compiling your contracts...
 
 
   Contract: Hacker
-    √ should steal countless of tokens (377ms)
+    √ should send ether (185ms)
+    √ should steal all ether (330ms)
 
 
-  1 passing (440ms)
+  2 passing (569ms)
 
 ```
