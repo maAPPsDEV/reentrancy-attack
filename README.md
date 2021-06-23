@@ -59,7 +59,7 @@ The first thing is to subtracting the hacker's balance. And it will happen as ma
 
 Since Solidity v0.8.0, **underflow** or **overflow** reverts, eventually you will fail to steal. (I found it after all day tweaking.)
 
-Are you still not clear about what does it mean? Look at the source code [below](https://github.com/maAPPsDEV/reentrancy-attack/tree/0.8.0). I prevent **underflow** with `unchecked { ... }` (in order to keep the game works).
+Are you still not clear about what does it mean? Look at the source code [below](https://github.com/maAPPsDEV/reentrancy-attack/tree/0.8.0#source-code). I prevent **underflow** with `unchecked { ... }` (in order to keep the game works).
 
 Two questions you may get:
 
