@@ -20,9 +20,11 @@ _Hint:_
 ## What will you learn?
 
 1. Re-entrancy
+   
    Any interaction from a contract (A) with another contract (B) and any transfer of Ether hands over control to that contract (B). This makes it possible for B to call back into A before this interaction is completed.
 
 2. CEI Pattern - Checks-Effects-Interactions Pattern
+   
    Most functions will first perform some checks (who called the function, are the arguments in range, did they send enough Ether, does the person have tokens, etc.). These checks should be done first.
 
    As the second step, if all checks passed, effects to the state variables of the current contract should be made. Interaction with other contracts should be the very last step in any function.
