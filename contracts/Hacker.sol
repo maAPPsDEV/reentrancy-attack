@@ -46,7 +46,7 @@ contract Hacker {
   }
 
   function kill() external onlyHacker {
-    // 3. Get the stolens back to hacker account, and disappear
+    // 4. Get the stolens back to hacker account, and disappear
     selfdestruct(hacker);
   }
 }
