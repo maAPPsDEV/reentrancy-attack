@@ -43,7 +43,7 @@ See more [here](https://www.gemini.com/cryptopedia/the-dao-hack-makerdao)
 
 ### Solidity v0.8.0 Breaking Changes
 
-**You won't be able to steal the ether if the target contract has been complied in Solidity 0.8.0 or uppper** 🤔
+**You won't be able to steal the ether if the target contract has been compiled in Solidity 0.8.0 or uppper** 🤔
 
 > [**Solidity v0.8.0 Breaking Changes**](https://docs.soliditylang.org/en/v0.8.5/080-breaking-changes.html?highlight=underflow#silent-changes-of-the-semantics)
 >
@@ -59,13 +59,12 @@ The first thing is to subtracting the hacker's balance. And it will happen as ma
 
 Since Solidity v0.8.0, **underflow** or **overflow** reverts, eventually you will fail to steal. (I found it after all day tweaking.)
 
-Are you still not clear about what does it mean? Look at the source code below. I prevent **underflow** with `unchecked { ... }`.
+Are you still not clear about what does it mean? Look at the source code below. I prevent **underflow** with `unchecked { ... }` (in order to keep the game works).
 
 Two questions you may get:
 
-a. So, don't you need to use [`SafeMath`](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/math/SafeMath.sol)?
-
-b. Re-entrancy is now impossible?
+   1. So, don't you need to use [`SafeMath`](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/math/SafeMath.sol)?
+   2. Re-entrancy is now impossible?
 
 
 ## Source Code
