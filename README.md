@@ -41,7 +41,31 @@ The DAO was a decentralized autonomous organization (DAO) that was launched in 2
 
 See more [here](https://www.gemini.com/cryptopedia/the-dao-hack-makerdao)
 
-### Solidity v0.8.0 Breaking Changes 🤔
+### Solidity v0.8.0 Breaking Changes
+
+**You won't be able to steal the ether if the target contract has been compiled in Solidity 0.8.0 or uppper** 🤔 [UPDATE](https://github.com/maAPPsDEV/reentrancy-attack/tree/0.8.0)
+
+> [**Solidity v0.8.0 Breaking Changes**](https://docs.soliditylang.org/en/v0.8.5/080-breaking-changes.html?highlight=underflow#silent-changes-of-the-semantics)
+>
+> Arithmetic operations revert on **underflow** and **overflow**. You can use `unchecked { ... }` to use the previous wrapping behaviour.
+>
+> Checks for overflow are very common, so we made them the default to increase readability of code, even if it comes at a slight increase of gas costs.
+
+What does it matter with Re-entrancy?
+
+Look at the source code carefully.
+Once there is no more ether to steal, `call` would return false, and it starts to finish the chain of transactions.
+The first thing is to subtracting the hacker's balance. And it will happen as many times as Re-entrancy attempts. Thus it will cause **underflow** soon.
+
+Since Solidity v0.8.0, **underflow** or **overflow** reverts, eventually you will fail to steal. (I found it after all day tweaking.)
+
+Are you still not clear about what does it mean? Look at the source code [below](https://github.com/maAPPsDEV/reentrancy-attack/tree/0.8.0). I prevent **underflow** with `unchecked { ... }` (in order to keep the game works).
+
+Two questions you may get:
+
+   1. So, don't you need to use [`SafeMath`](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/math/SafeMath.sol)?
+   2. Re-entrancy is now impossible?
+
 
 ## Source Code
 
