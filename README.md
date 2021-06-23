@@ -20,11 +20,11 @@ _Hint:_
 ## What will you learn?
 
 1. Re-entrancy
-   
+
    Any interaction from a contract (A) with another contract (B) and any transfer of Ether hands over control to that contract (B). This makes it possible for B to call back into A before this interaction is completed.
 
 2. CEI Pattern - Checks-Effects-Interactions Pattern
-   
+
    Most functions will first perform some checks (who called the function, are the arguments in range, did they send enough Ether, does the person have tokens, etc.). These checks should be done first.
 
    As the second step, if all checks passed, effects to the state variables of the current contract should be made. Interaction with other contracts should be the very last step in any function.
@@ -41,7 +41,32 @@ The DAO was a decentralized autonomous organization (DAO) that was launched in 2
 
 See more [here](https://www.gemini.com/cryptopedia/the-dao-hack-makerdao)
 
-### Solidity v0.8.0 Breaking Changes 🤔
+### Solidity v0.8.0 Breaking Changes
+
+**You won't be able to steal the ether if the target contract has been complied in Solidity 0.8.0 or uppper** 🤔
+
+> [**Solidity v0.8.0 Breaking Changes**](https://docs.soliditylang.org/en/v0.8.5/080-breaking-changes.html?highlight=underflow#silent-changes-of-the-semantics)
+>
+> Arithmetic operations revert on **underflow** and **overflow**. You can use `unchecked { ... }` to use the previous wrapping behaviour.
+>
+> Checks for overflow are very common, so we made them the default to increase readability of code, even if it comes at a slight increase of gas costs.
+
+What does it matter with Re-entrancy?
+
+Look at the source code carefully.
+Once there is no more ether to steal, `call` would return false, and it starts to finish the chain of transactions.
+The first thing is to subtracting the hacker's balance. And it will happen as many times as Re-entrancy attempts. Thus it will cause **underflow** soon.
+
+Since Solidity v0.8.0, **underflow** or **overflow** reverts, eventually you will fail to steal. (I found it after all day tweaking.)
+
+Are you still not clear about what does it mean? Look at the source code below. I prevent **underflow** with `unchecked { ... }`.
+
+Two questions you may get:
+
+a. So, don't you need to use [`SafeMath`](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/math/SafeMath.sol)?
+
+b. Re-entrancy is now impossible?
+
 
 ## Source Code
 
@@ -49,7 +74,7 @@ See more [here](https://www.gemini.com/cryptopedia/the-dao-hack-makerdao)
 
 ```solidity
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.6.0;
+pragma solidity >=0.8.5 <0.9.0;
 
 contract Reentrance {
   mapping(address => uint256) public balances;
@@ -64,11 +89,13 @@ contract Reentrance {
 
   function withdraw(uint256 _amount) public {
     if (balances[msg.sender] >= _amount) {
-      (bool result, bytes memory data) = msg.sender.call{ value: _amount }("");
+      (bool result, bytes memory data) = msg.sender.call{value: _amount}("");
       if (result) {
         _amount;
       }
-      balances[msg.sender] -= _amount;
+      unchecked {
+        balances[msg.sender] -= _amount;
+      }
     }
   }
 

