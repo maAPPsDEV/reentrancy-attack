@@ -43,7 +43,7 @@ See more [here](https://www.gemini.com/cryptopedia/the-dao-hack-makerdao)
 
 ### Solidity v0.8.0 Breaking Changes
 
-**You won't be able to steal the ether if the target contract has been compiled in Solidity 0.8.0 or uppper** 🤔 [UPDATE](https://github.com/maAPPsDEV/reentrancy-attack/tree/0.8.0)
+**You won't be able to steal the ether if the target contract has been compiled in Solidity 0.8.0 or uppper** 🤔 Look at v0.8.0 version [here](https://github.com/maAPPsDEV/reentrancy-attack/tree/0.8.0)
 
 > [**Solidity v0.8.0 Breaking Changes**](https://docs.soliditylang.org/en/v0.8.5/080-breaking-changes.html?highlight=underflow#silent-changes-of-the-semantics)
 >
